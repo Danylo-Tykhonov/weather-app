@@ -1,7 +1,10 @@
+import "./Search.css"
+
 export default function Search({city, setCity, onSearch, loading}){
     return(
-        <div className="search-button">
-         <input 
+        <div className="search">
+            <input 
+            className="search-input"
             value={city}
             onChange={(e) => setCity(e.target.value)}
             onKeyDown={(e) => {
@@ -10,9 +13,12 @@ export default function Search({city, setCity, onSearch, loading}){
                 }
              }}
         />
-         <button onClick={onSearch} disabled={city.trim() ===   "" || loading}>
+         
+         <div>
+         <button className="search-button" onClick={onSearch} disabled={city.trim() ===   "" || loading}>
                 Search
           </button>
+          </div>
         </div>
 
     )

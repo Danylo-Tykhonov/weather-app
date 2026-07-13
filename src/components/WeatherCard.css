@@ -1,0 +1,23 @@
+    .card {
+        width: 320px;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        background-color: #f3f3f3;
+        margin-top: 10px;
+    }
+
+    .card-temperature {
+        font-size: 48px;
+        font-weight: bold;
+    }
+
+    .card-city {
+        font-size: 28px;
+    }
+
+    .card-icon {
+    font-size: 64px;
+    margin-bottom: 10px;
+    }
