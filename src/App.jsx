@@ -1,39 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "./components/Search";
 import WeatherCard from "./components/WeatherCard";
 import "./App.css"
 import { WiDaySunny, WiCloud, WiFog, WiRain, WiSnow, WiThunderstorm } from "react-icons/wi";
 
 export default function App() {
-  const [city, setCity] = useState("");
+  const [cityName, setCityName] = useState(""); //input text
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [cities, setCities] = useState([]); //city list
+  const [chosenCity, setChosenCity] = useState(null); //picked city
 
-  async function onSearch() {
+  async function fetchWeather() {
     setLoading(true);
     setError(null);
+    const { latitude, longitude, timezone } = chosenCity;
+
+    if(!chosenCity) {
+      return;
+    }
 
     try {
-    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=10&language=en&format=json`);
-    const data = await res.json();
-    
-      if(data.results.length === 0) {
-        throw new Error("No data")
-      }
-
-      if(!res.ok) {
-        throw new Error("City not found");
-      }
-
-    const { latitude: lat, longitude: long, timezone } = data.results[0];
-    const weat = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weather_code&timezone=${timezone}`)
+    const weat = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weather_code&timezone=${timezone}`)
     const weat_data = await weat.json(); 
 
     if(!weat.ok) {
         throw new Error("City not found");
       }
-      
 
       const weatherCode = weat_data.current.weather_code;
 
@@ -94,7 +88,8 @@ export default function App() {
 }
 
       const weatherInfo = {
-        city,
+        city: chosenCity.name,
+        country: chosenCity.country,
         timezone,
         temperature: weat_data.current.temperature_2m,
         time: weat_data.current.time.slice(11,16),
@@ -116,20 +111,62 @@ export default function App() {
     }
   }
 
+  async function searchCities() {
+    
+    try {
+    if(cityName.length < 2) {
+      setCities([]);
+      return;
+    }
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${cityName}&count=10&language=en&format=json`);
+    
+    if(!res.ok) {
+      throw new Error("Api failed")
+    }
+    
+    const data = await res.json();
+   
+    if (!data.results) {
+    setCities([]);
+    return;
+    }
+      setCities(data.results);
+    }
+    catch(error) {
+      setError(error.message);
+    }
+  }
+
+  useEffect(() => {
+    if(!chosenCity)
+    searchCities();
+  }, [cityName, chosenCity]);
+
+  function selectCity(city) {
+    setChosenCity(city);
+    setCityName(city.name);
+    setCities([]);
+  }
+
+useEffect(() => {
+  if(chosenCity){
+  fetchWeather();
+  }
+}, [chosenCity])
 
   return (
     <div className="app">
       <Search 
-      city={city}
-      setCity={setCity}
-      onSearch={onSearch}
+      cityName={cityName}
+      setCityName={setCityName}
+      fetchWeather={fetchWeather}
       loading={loading}
+      cities={cities}
+      selectCity={selectCity}
+      setChosenCity={setChosenCity}
       />
 
       {weather && <WeatherCard weather ={weather} />}
-
-      {loading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
 
     </div>
   )

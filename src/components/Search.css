@@ -18,3 +18,45 @@
    padding: 10px;
    border-radius: 8px;
 }
+
+.search {
+    position: relative;
+    width: 400px;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    background: white;
+    border-radius: 10px;
+    margin-top: 6px;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,.15);
+
+    max-height: 250px;
+    overflow-y: auto;
+
+    z-index: 100;
+}
+
+.search-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.search-item:hover {
+    background: #f3f3f3;
+}
+
+.search-item strong {
+    display: block;
+}
+
+.search-item span {
+    color: gray;
+    font-size: 14px;
+}
