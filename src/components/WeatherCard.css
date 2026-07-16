@@ -21,3 +21,16 @@
     font-size: 64px;
     margin-bottom: 10px;
     }
+
+    .hourly {
+        display: flex;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        gap: 12px;
+    }
+    .daily {
+        display: flex;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        gap: 12px;
+    }

@@ -3,6 +3,7 @@ import Search from "./components/Search";
 import WeatherCard from "./components/WeatherCard";
 import "./App.css"
 import { WiDaySunny, WiCloud, WiFog, WiRain, WiSnow, WiThunderstorm } from "react-icons/wi";
+import getWeatherIcon from "./utilities/WeatherIcon";
 
 export default function App() {
   const [cityName, setCityName] = useState(""); //input text
@@ -22,7 +23,7 @@ export default function App() {
     }
 
     try {
-    const weat = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weather_code&timezone=${timezone}`)
+    const weat = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weather_code&timezone=${timezone}&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min`)
     const weat_data = await weat.json(); 
 
     if(!weat.ok) {
@@ -31,61 +32,35 @@ export default function App() {
 
       const weatherCode = weat_data.current.weather_code;
 
-      let icon = null;
+      const icon = getWeatherIcon(weatherCode);
 
-      switch (weatherCode) {
-        case 0:
-          icon = <WiDaySunny />;
-          break;
-      
-        case 1:
-        case 2:
-        case 3:
-          icon = <WiCloud />;
-          break
+      const today = weat_data.current.time.slice(0,10);
 
-        case 45:
-        case 48:
-          icon = <WiFog />;
-          break;
+      const hourlyForecast = weat_data.hourly.time.map((time, index) => {
+      return {
+        fullTime: time,
+        time: time.slice(11, 16),
+        temperature: weat_data.hourly.temperature_2m[index],
+        weatherCode: weat_data.hourly.weather_code[index],
+        icon: getWeatherIcon(weat_data.hourly.weather_code[index])
+      }
+    })
+      const hourlyForecastInfo = hourlyForecast.filter(hourly => hourly.fullTime.startsWith(today));
 
-        case 51:
-        case 53:
-        case 55:
-        case 56:
-        case 57:
-          icon = <WiRain />;
-          break;
-
-        case 61:
-        case 63:
-        case 65:
-        case 66:
-        case 67:
-        case 80:
-        case 81:
-        case 82:
-          icon = <WiRain />;
-          break;
-
-        case 71:
-        case 73:
-        case 75:
-        case 77:
-        case 85:
-        case 86:
-          icon = <WiSnow />;
-          break;
-
-        case 95:
-        case 96:
-        case 99:
-          icon = <WiThunderstorm />;
-          break;
-
-        default:
-          icon = "Unknown weather";
-}
+      const dailyForecast = weat_data.daily.time.map((time, index) => {
+        const date = new Date(time);
+        const weekDay = date.toLocaleDateString("en-US", {
+          weekday: "short"
+        })
+        return {
+          time,
+          weekDay,
+          temperatureMax: weat_data.daily.temperature_2m_max[index],
+          temperatureMin: weat_data.daily.temperature_2m_min[index],
+          weatherCode: weat_data.daily.weather_code[index],
+          icon: getWeatherIcon(weat_data.daily.weather_code[index])
+        }
+      })
 
       const weatherInfo = {
         city: chosenCity.name,
@@ -96,7 +71,9 @@ export default function App() {
         windSpeed: weat_data.current.wind_speed_10m,
         humidity: weat_data.current.relative_humidity_2m,
         feelsLike: weat_data.current.apparent_temperature,
-        icon
+        icon,
+        hourlyForecastInfo,
+        dailyForecast
       }
 
       setWeather(weatherInfo);

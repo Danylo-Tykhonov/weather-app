@@ -37,6 +37,28 @@ export default function WeatherCard({weather}) {
         Humidity: {weather.humidity}%
     </p>
 
+        <h3>Today's forecast</h3>
+
+    <div className="hourly">
+        {weather.hourlyForecastInfo.map(hour => (
+    <div key={hour.fullTime}>
+      <p>{hour.time}</p>
+      <div>{hour.icon}</div>
+      <p>{hour.temperature}°C</p>
+    </div>
+  ))}
+</div>
+        <h3>Weekly forecast</h3>
+
+    <div className="daily">
+        {weather.dailyForecast.map(daily => (
+      <div classname="daily-time" key={daily.time}>
+      <p>{daily.weekDay}</p>
+      <div>{daily.icon}</div>
+      <p>{daily.temperatureMin}/{daily.temperatureMax}°C</p>
+    </div>
+  ))}
+</div>
 </div>
     )
 }
