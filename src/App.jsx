@@ -12,6 +12,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [cities, setCities] = useState([]); //city list
   const [chosenCity, setChosenCity] = useState(null); //picked city
+  const [selectedDay, setSelectedDay] = useState(null)
 
   async function fetchWeather() {
     setLoading(true);
@@ -35,6 +36,7 @@ export default function App() {
       const icon = getWeatherIcon(weatherCode);
 
       const today = weat_data.current.time.slice(0,10);
+      setSelectedDay(today);
 
       const hourlyForecast = weat_data.hourly.time.map((time, index) => {
       return {
@@ -45,9 +47,8 @@ export default function App() {
         icon: getWeatherIcon(weat_data.hourly.weather_code[index])
       }
     })
-      const hourlyForecastInfo = hourlyForecast.filter(hourly => hourly.fullTime.startsWith(today));
 
-      const dailyForecast = weat_data.daily.time.map((time, index) => {
+        const dailyForecast = weat_data.daily.time.map((time, index) => {
         const date = new Date(time);
         const weekDay = date.toLocaleDateString("en-US", {
           weekday: "short"
@@ -72,7 +73,7 @@ export default function App() {
         humidity: weat_data.current.relative_humidity_2m,
         feelsLike: weat_data.current.apparent_temperature,
         icon,
-        hourlyForecastInfo,
+        hourlyForecast,
         dailyForecast
       }
 
@@ -134,17 +135,22 @@ useEffect(() => {
   return (
     <div className="app">
       <Search 
-      cityName={cityName}
-      setCityName={setCityName}
-      fetchWeather={fetchWeather}
-      loading={loading}
-      cities={cities}
-      selectCity={selectCity}
-      setChosenCity={setChosenCity}
+        cityName={cityName}
+        setCityName={setCityName}
+        fetchWeather={fetchWeather}
+        loading={loading}
+        cities={cities}
+        selectCity={selectCity}
+        setChosenCity={setChosenCity}
       />
 
-      {weather && <WeatherCard weather ={weather} />}
-
+      {weather && (
+        <WeatherCard 
+        weather={weather}
+        selectedDay={selectedDay}
+        setSelectedDay={setSelectedDay}
+      />
+      )}
     </div>
   )
 }

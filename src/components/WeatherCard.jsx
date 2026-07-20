@@ -1,7 +1,9 @@
 import "./WeatherCard.css";
 
-export default function WeatherCard({weather}) {
+export default function WeatherCard({weather, selectedDay, setSelectedDay}) {
     
+    const hourlyForecastInfo = weather.hourlyForecast.filter(hourly => hourly.fullTime.startsWith(selectedDay));
+
     return (
     <div className="card">
 
@@ -40,7 +42,7 @@ export default function WeatherCard({weather}) {
         <h3>Today's forecast</h3>
 
     <div className="hourly">
-        {weather.hourlyForecastInfo.map(hour => (
+        {hourlyForecastInfo.map(hour => (
     <div key={hour.fullTime}>
       <p>{hour.time}</p>
       <div>{hour.icon}</div>
@@ -52,7 +54,7 @@ export default function WeatherCard({weather}) {
 
     <div className="daily">
         {weather.dailyForecast.map(daily => (
-      <div classname="daily-time" key={daily.time}>
+      <div className={`daily-time ${selectedDay === daily.time ? "active" : ""}`} key={daily.time} onClick={() => setSelectedDay(daily.time)}>
       <p>{daily.weekDay}</p>
       <div>{daily.icon}</div>
       <p>{daily.temperatureMin}/{daily.temperatureMax}°C</p>
